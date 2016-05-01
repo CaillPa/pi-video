@@ -45,7 +45,7 @@ while True :
         ((x,y), radius) = cv2.minEnclosingCircle(c)
         
         # Si le cercle a un rayon minimum
-        if radius > 4 :
+        if radius > 6 :
             # Dessine le cercle sur la frame
             cv2.circle(frame, (int(x), int(y)), int(radius), (0,255, 255), 2)
     
