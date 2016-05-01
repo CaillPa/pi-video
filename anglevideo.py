@@ -2,14 +2,30 @@ from imutils.video.pivideostream import PiVideoStream
 import cv2  # Librairie OpenCV
 import time # Fonctions temporelles
 import numpy as np
+import threading
 
 # Parametres de la recherche
 nbpoints = 12       # nombre d'angles a reporter
 qualityLevel = 0.01  # seuil de qualité minimale pour les angles détectés
 distancemin = 2    # distance minimale entre 2 angles a reporter
 
+class threadAff(threading.Thread) :
+    def __init__(self) :
+        threading.Thread.__init__(self)
+        self.frame = None
+
+    def run(self) :
+       if self.frame is not None :
+           cv2.imshow('angle', self.frame) 
+
+    def updateFrame(self, frame) :
+        self.frame = frame
+
 # Creation de la fenetre d'affichage
 cv2.namedWindow('angle', cv2.WINDOW_NORMAL)
+
+aff = threadAff()
+aff.start()
 
 # Créé un soustracteur d'arriere plan
 fgbg = cv2.createBackgroundSubtractorMOG2(history = 200, detectShadows= False)
@@ -42,15 +58,17 @@ while True :
     
     # Recherche des N angles les plus pertients, stockage dans corners
     corners = cv2.goodFeaturesToTrack(gray, nbpoints, qualityLevel, distancemin, mask = fgmask)
-    corners = np.int0(corners)
+    if corners is not None :
+        corners = np.int0(corners)
     
-    # Placement des marqueurs sur l'image
-    for i in corners :
-        x, y = i.ravel()
-        cv2.circle(frame, (x, y), 3, 255, -1)
+        # Placement des marqueurs sur l'image
+        for i in corners :
+            x, y = i.ravel()
+            cv2.circle(frame, (x, y), 3, 255, -1)
         
     # Affichage du résultat
-    cv2.imshow('angle', frame)
+    #cv2.imshow('angle', frame)
+    aff.updateFrame(frame)
     
     key = cv2.waitKey(1) & 0xFF
     
