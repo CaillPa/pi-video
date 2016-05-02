@@ -6,34 +6,50 @@ import threading
 
 # Parametres de la recherche
 nbpoints = 12       # nombre d'angles a reporter
-qualityLevel = 0.01  # seuil de qualité minimale pour les angles détectés
+qualityLevel = 0.1  # seuil de qualité minimale pour les angles détectés
 distancemin = 2    # distance minimale entre 2 angles a reporter
 
+# Nom de la fenetre d'affichage
+window_name = 'angle'
+
+# Definition du Thread dédié a l'affichage
 class threadAff(threading.Thread) :
     def __init__(self) :
         threading.Thread.__init__(self)
         self.frame = None
+        self.isRunning = False
+        self.key = None
+        self.frameReady = False
 
     def run(self) :
-       if self.frame is not None :
-           cv2.imshow('angle', self.frame) 
+        while self.isRunning :
+            if self.frame is not None :
+                if self.frameReady :
+                    cv2.imshow(window_name, self.frame)
+                    self.key = cv2.waitKey(1) & 0xFF
+                    self.frameReady = False
 
     def updateFrame(self, frame) :
         self.frame = frame
+        return self.key
 
 # Creation de la fenetre d'affichage
-cv2.namedWindow('angle', cv2.WINDOW_NORMAL)
+cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
+# Creation du thread d'affichage
 aff = threadAff()
-aff.start()
 
 # Créé un soustracteur d'arriere plan
 fgbg = cv2.createBackgroundSubtractorMOG2(history = 200, detectShadows= False)
 
 # Demarage du flux video sur un thread different
-vs = PiVideoStream().start()
+vs = PiVideoStream(framerate = 50).start()
 # Laisse le temps de chauffer a la camera
 time.sleep(1.0)
+
+# Demmarage du thread d'affichage
+aff.isRunning = True
+aff.start()
 
 # Boucle principale 
 while True :
@@ -48,9 +64,6 @@ while True :
     # Effectue 2 passages de dilatation pour conserver la taille
     fgmask = cv2.dilate(fgmask, None, iterations = 4)
     
-    # Application du masque
-    #res = cv2.bitwise_and(frame, frame, mask = fgmask)
-    
     fgmask = np.uint8(fgmask)
     
     # Passage en NdG
@@ -64,17 +77,21 @@ while True :
         # Placement des marqueurs sur l'image
         for i in corners :
             x, y = i.ravel()
-            cv2.circle(frame, (x, y), 3, 255, -1)
+            cv2.circle(frame, (x, y), 2, 255, -1)
         
     # Affichage du résultat
-    #cv2.imshow('angle', frame)
-    aff.updateFrame(frame)
-    
-    key = cv2.waitKey(1) & 0xFF
-    
-    # Si on appuie sur q, arrete la boucle
-    if key == ord("q") :
+    #cv2.imshow(window_name, frame)
+    #cv2.waitKey(0)
+
+    #print(threading.active_count())
+
+    # Récupere l'eventuelle touche pressée et met a jour la frame courante
+    if aff.updateFrame(frame) == ord("q") :
+        aff.isRunning = False
         break
+    
+    # Indique au thread d'affichage qu'une nouvelle frame est prete
+    aff.frameReady = True
         
 # Ferme les fenetres ouvertes
 cv2.destroyAllWindows()
