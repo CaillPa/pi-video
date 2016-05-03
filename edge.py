@@ -1,3 +1,7 @@
+# Detection et affichage des lignes doites dans un flux video
+# Passage de la frame en NdG, filtre Gaussien
+# Detecteur de contours de Canny puis HoughLines
+
 from imutils.video.pivideostream import PiVideoStream
 import cv2
 import numpy as np
@@ -6,7 +10,9 @@ import time
 # Parametre du detecteur de Canny
 thres1 = 100
 thres2 = 200
-ouverture = 3
+
+# Taille du kernel pour le filtre Gaussien
+gaussSize = (3, 3)
 
 # Nom de la fenetre d'affichage
 window_name = 'Canny'
@@ -25,26 +31,28 @@ while True :
     # Lecture de la frame dans le flux de lecture
     frame = vs.read()
 
-    # Passage en NdG
+    # Passage en NdG + filtre Gaussien pour réduire le bruit
     gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, gaussSize, 0)
     
     # Application de l'algo de Canny
-    edges = cv2.Canny(gray, thres1, thres2, apertureSize = ouverture)
+    edges = cv2.Canny(gray, thres1, thres2)
 
-    lines = cv2.HoughLines2(edges,1,np.pi/180,10)
+    lines = cv2.HoughLines(edges,1,np.pi/180,100)
 
-    #if lines is not None :
-    for rho,theta in lines[0]:
-        a = np.cos(theta)
-        b = np.sin(theta)
-        x0 = a*rho
-        y0 = b*rho
-        x1 = int(x0 + 1000*(-b))
-        y1 = int(y0 + 1000*(a))
-        x2 = int(x0 - 1000*(-b))
-        y2 = int(y0 - 1000*(a))
-            
-        cv2.line(frame,(x1,y1),(x2,y2),(0,0,255),2)
+    if lines is not None :
+	    for line in lines:
+	    	for rho, theta in line :
+	        	a = np.cos(theta)
+	        	b = np.sin(theta)
+	        	x0 = a*rho
+	        	y0 = b*rho
+	        	x1 = int(x0 + 1000*(-b))
+	        	y1 = int(y0 + 1000*(a))
+	        	x2 = int(x0 - 1000*(-b))
+	        	y2 = int(y0 - 1000*(a))
+	            
+	        	cv2.line(frame,(x1,y1),(x2,y2),(0,0,255),1)
 
     # Affichage de la frame courante
     cv2.imshow(window_name, frame)
