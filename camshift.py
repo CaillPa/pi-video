@@ -17,10 +17,11 @@ time.sleep(2.0)
 # Creation de la fenetre d'affichage
 cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
 
-# setup initial location of window
-r,h,c,w = 10,90,10,130  # simply hardcoded the values
+# Position initiale de la fenetre
+r,h,c,w = 10,120,10,100  # valeurs codées en dur
 track_window = (c,r,w,h)
 
+# Premiere boucle pour placer l'objet a traquer
 while True :
 	frame = vs.read()
 
@@ -31,24 +32,28 @@ while True :
 	if cv2.waitKey(1) & 0xFF == ord("q") :
 		break
 
-# set up the ROI for tracking
+# setup de la region de tracking
 roi = frame[r:r+h, c:c+w]
+# Conversion en HSV
 hsv_roi =  cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+# Definis un masque pour filtrer les couleurs inutiles
 mask = cv2.inRange(hsv_roi, np.array((0., 60.,32.)), np.array((180.,255.,255.)))
+# Calcul de l'histo normalisé
 roi_hist = cv2.calcHist([hsv_roi],[0],mask,[180],[0,180])
 cv2.normalize(roi_hist,roi_hist,0,255,cv2.NORM_MINMAX)
 
- # Setup the termination criteria, either 10 iteration or move by atleast 1 pt
+# Conditions d'arret
 term_crit = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1 )
 
 fps = FPS().start()
 
 while True:
 	frame = vs.read()
+    # Passage en HSV
 	hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 	dst = cv2.calcBackProject([hsv],[0],roi_hist,[0,180],1)
 
-	# apply meanshift to get the new location
+	# Applique le camshift
 	ret, track_window = cv2.CamShift(dst, track_window, term_crit)
 
 	# Draw it on image
