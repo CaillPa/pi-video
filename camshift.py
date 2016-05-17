@@ -10,7 +10,7 @@ window_name = 'preview'
 window_pos = (10, 120, 10, 100)
 # Valeurs du filtre HSV
 hsv_filter_low = (10, 40, 100)
-hsv_filter_high = (190, 255, 255)
+hsv_filter_high = (220, 255, 255)
 
 # Creation de l'objet flux video + parametres optionels
 vs = PiVideoStream()
@@ -28,14 +28,14 @@ track_window = (c,r,w,h)
 
 # Premiere boucle pour placer l'objet a traquer
 while True :
-	frame = vs.read()
+    frame = vs.read()
 
-	# Dessine le rectangle de selection
-	frame = cv2.rectangle(frame, (r, c), (r+h, c+w), (255, 0, 0), thickness = 2)
+    # Dessine le rectangle de selection
+    frame = cv2.rectangle(frame, (r, c), (r+w, c+h), (255, 0, 0), thickness = 2)
 
-	cv2.imshow(window_name,frame)
-	if cv2.waitKey(1) & 0xFF == ord("q") :
-		break
+    cv2.imshow(window_name,frame)
+    if cv2.waitKey(1) & 0xFF == ord("q") :
+        break
 
 # setup de la region de tracking
 roi = frame[r:r+h, c:c+w]
@@ -47,30 +47,32 @@ mask = cv2.inRange(hsv_roi, np.array(hsv_filter_low), np.array(hsv_filter_high))
 roi_hist = cv2.calcHist([hsv_roi],[0],mask,[180],[0,180])
 cv2.normalize(roi_hist,roi_hist,0,255,cv2.NORM_MINMAX)
 
+cv2.imshow("mask", mask)
+cv2.waitKey(0)
 # Conditions d'arret
 term_crit = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1 )
 
 fps = FPS().start()
 
 while True:
-	frame = vs.read()
+    frame = vs.read()
     # Passage en HSV
-	hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-	dst = cv2.calcBackProject([hsv],[0],roi_hist,[0,180],1)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    dst = cv2.calcBackProject([hsv],[0],roi_hist,[0,180],1)
 
-	# Applique le camshift
-	ret, track_window = cv2.CamShift(dst, track_window, term_crit)
+    # Applique le camshift
+    ret, track_window = cv2.CamShift(dst, track_window, term_crit)
 
-	# Draw it on image
-	pts = cv2.boxPoints(ret)
-	pts = np.int0(pts)
-	img2 = cv2.polylines(frame,[pts],True, 255,2)
+    # Draw it on image
+    pts = cv2.boxPoints(ret)
+    pts = np.int0(pts)
+    img2 = cv2.polylines(frame,[pts],True, 255,2)
 
-	fps.update()
+    fps.update()
 
-	cv2.imshow(window_name,img2)
-	if cv2.waitKey(1) & 0xFF == ord("q") :
-		break
+    cv2.imshow(window_name,img2)
+    if cv2.waitKey(1) & 0xFF == ord("q") :
+        break
 
 fps.stop()
 print("Temps passé : {:.2f}".format(fps.elapsed()))
