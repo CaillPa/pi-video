@@ -6,6 +6,11 @@ from imutils.video import FPS # Pour les mesures de framerate
 
 # Nom de la fenetre de prévisualisation
 window_name = 'preview'
+# Position + dimension initiale de la fenetre de tracking
+window_pos = (10, 120, 10, 100)
+# Valeurs du filtre HSV
+hsv_filter_low = (10, 40, 100)
+hsv_filter_high = (190, 255, 255)
 
 # Creation de l'objet flux video + parametres optionels
 vs = PiVideoStream()
@@ -18,7 +23,7 @@ time.sleep(2.0)
 cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
 
 # Position initiale de la fenetre
-r,h,c,w = 10,120,10,100  # valeurs codées en dur
+(r,h,c,w) = window_pos
 track_window = (c,r,w,h)
 
 # Premiere boucle pour placer l'objet a traquer
@@ -37,7 +42,7 @@ roi = frame[r:r+h, c:c+w]
 # Conversion en HSV
 hsv_roi =  cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
 # Definis un masque pour filtrer les couleurs inutiles
-mask = cv2.inRange(hsv_roi, np.array((0, 60,32)), np.array((180,255,255)))
+mask = cv2.inRange(hsv_roi, np.array(hsv_filter_low), np.array(hsv_filter_high))
 # Calcul de l'histo normalisé
 roi_hist = cv2.calcHist([hsv_roi],[0],mask,[180],[0,180])
 cv2.normalize(roi_hist,roi_hist,0,255,cv2.NORM_MINMAX)
