@@ -66,7 +66,9 @@ while True:
     # Draw it on image
     pts = cv2.boxPoints(ret)
     pts = np.int0(pts)
-    img2 = cv2.polylines(frame,[pts],True, 255,2)
+    center = tuple(np.int0(np.median(pts, axis = 0)))
+    #img2 = cv2.polylines(frame,[pts],True, 255,2)
+    img2 = cv2.circle(frame, center, 6, (255, 255, 0), -1)
 
     fps.update()
 
