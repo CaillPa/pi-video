@@ -9,7 +9,7 @@ window_name = 'preview'
 # Position + dimension initiale de la fenetre de tracking
 window_pos = (10, 120, 10, 100)
 # Valeurs du filtre HSV
-hsv_filter_low = (10, 40, 100)
+hsv_filter_low = (10, 40, 20)
 hsv_filter_high = (220, 255, 255)
 
 # Creation de l'objet flux video + parametres optionels
@@ -49,7 +49,7 @@ cv2.normalize(roi_hist,roi_hist,0,255,cv2.NORM_MINMAX)
 
 cv2.imshow("mask", mask)
 cv2.waitKey(0)
-# Conditions d'arret
+# Conditions d'arret 10 iterations ou deplacement d'1 pixel
 term_crit = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1 )
 
 fps = FPS().start()
