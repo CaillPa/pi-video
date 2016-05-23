@@ -38,8 +38,10 @@ while True :
     # Application de l'algo de Canny
     edges = cv2.Canny(gray, thres1, thres2)
 
+    # Algo de Hough pour trouver les lignes
     lines = cv2.HoughLines(edges,1,np.pi/180,100)
 
+    # Dessin des lignes sur la frame pour l'affichage
     if lines is not None :
 	    for line in lines:
 	    	for rho, theta in line :
@@ -51,7 +53,6 @@ while True :
 	        	y1 = int(y0 + 1000*(a))
 	        	x2 = int(x0 - 1000*(-b))
 	        	y2 = int(y0 - 1000*(a))
-	            
 	        	cv2.line(frame,(x1,y1),(x2,y2),(0,0,255),1)
 
     # Affichage de la frame courante
