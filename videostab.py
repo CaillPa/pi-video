@@ -4,13 +4,16 @@ import cv2
 import time
 from imutils.video import FPS
 
+# Nom de la fenetre d'affichage
 window_name = 'preview'
 
+# Demarrage du thread d'affichage
 vs = PiVideoStream()
 vs.start()
 time.sleep(2.0)
 
-cv2.namedWindow(window_name, cv2.WINDOW_OPENGL)
+# Creation de la fenetre d'affichage
+cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
 fps = FPS().start()
 while True :
