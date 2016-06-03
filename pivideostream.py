@@ -13,6 +13,9 @@ class PiVideoStream:
 		self.camera.video_stabilization = False
 		self.camera.resolution = resolution
 		self.camera.framerate = framerate
+        self.camera.awb_mode = 'fluorescent'
+        self.camera.meter_mode = 'matrix'
+        self.camera.exposure_mode = 'sports'
 		self.rawCapture = PiRGBArray(self.camera, size=resolution)
 		self.stream = self.camera.capture_continuous(self.rawCapture,
 			format="bgr", use_video_port=True)
