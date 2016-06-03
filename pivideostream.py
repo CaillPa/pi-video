@@ -10,7 +10,7 @@ class PiVideoStream:
     def __init__(self, resolution=(640, 480), framerate=59):
         # initialize the camera and stream
         self.camera = PiCamera()
-        self.camera.video_stabilization = False
+        self.camera.video_stabilization = True
         self.camera.resolution = resolution
         self.camera.framerate = framerate
         self.camera.awb_mode = 'fluorescent'
