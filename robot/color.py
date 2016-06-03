@@ -8,14 +8,14 @@ ser = serial.Serial('/dev/ttyACM0',9600)
 cv2.namedWindow('preview', cv2.WINDOW_NORMAL)
 
 # Definition des seuils HSV pour le vert
-greenLower = (85, 130, 50)
-greenUpper = (100, 255, 255)
+greenLower = (80, 70, 70)
+greenUpper = (120, 255, 255)
 
 # Demarage du flux video sur un thread different
 vs = PiVideoStream()
 vs.start()
 # Laisse le temps de chauffer a la camera
-time.sleep(1.0)
+time.sleep(2.0)
 print("Demarrage")
 
 # Boucle principale 
@@ -47,7 +47,7 @@ while True :
     recu = ser.readline()[:-2].decode('utf-8')
     print("recu : ", recu)
 
-    cv2.imshow('preview', frame)
+    cv2.imshow('preview', mask)
     if cv2.waitKey(1) == ord("q") :
         break
 # Ferme les fenetres ouvertes
