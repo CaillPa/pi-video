@@ -10,7 +10,7 @@ ser = serial.Serial('/dev/ttyACM0',9600)
 # Nom de la fenetre de prévisualisation
 window_name = 'preview'
 # Position + dimension initiale de la fenetre de tracking
-window_pos = (10, 120, 10, 100)
+window_pos = (100, 100, 100, 100)
 # Valeurs du filtre HSV
 hsv_filter_low = (10, 40, 20)
 hsv_filter_high = (220, 255, 255)
