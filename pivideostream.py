@@ -7,15 +7,12 @@ from threading import Thread
 import cv2
 
 class PiVideoStream:
-    def __init__(self, resolution=(640, 480), framerate=59):
+    def __init__(self, resolution=(640, 480), framerate=48):
         # initialize the camera and stream
         self.camera = PiCamera()
-        self.camera.video_stabilization = True
+        #self.camera.video_stabilization = True
         self.camera.resolution = resolution
         self.camera.framerate = framerate
-        self.camera.awb_mode = 'fluorescent'
-        self.camera.meter_mode = 'matrix'
-        self.camera.exposure_mode = 'sports'
         self.rawCapture = PiRGBArray(self.camera, size=resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture,
             format="bgr", use_video_port=True)
@@ -55,3 +52,12 @@ class PiVideoStream:
     def stop(self):
         # indicate that the thread should be stopped
         self.stopped = True
+        
+    # Settings for consistent images capture
+    # Must be called some times after the camera is started
+    def consistent(self):
+        self.camera.shutter_speed = self.camera.exposure_speed
+        self.camera.exposure_mode = 'off'
+        g = self.camera.awb_gains
+        self.camera.awb_mode = 'off'
+        self.camera.awb_gains = g
