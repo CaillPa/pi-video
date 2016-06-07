@@ -3,19 +3,22 @@ import cv2  # Librairie OpenCV
 import time # Fonctions temporelles
 import serial
 
+# Demarre la communication sur le port série
 ser = serial.Serial('/dev/ttyACM0',9600)
 
+# Fenetre d'affichage de la "vue" du robot
 cv2.namedWindow('preview', cv2.WINDOW_NORMAL)
 
 # Definition des seuils HSV pour le vert
-greenLower = (80, 70, 70)
-greenUpper = (120, 255, 255)
+greenLower = (90, 70, 90)
+greenUpper = (105, 255, 255)
 
 # Demarage du flux video sur un thread different
 vs = PiVideoStream()
 vs.start()
 # Laisse le temps de chauffer a la camera
-time.sleep(2.0)
+time.sleep(2)
+vs.consistent()
 print("Demarrage")
 
 # Boucle principale 
@@ -26,8 +29,8 @@ while True :
     # Construis un masque pour la couleur définie
     mask = cv2.inRange(hsv, greenLower, greenUpper)
 
-    mask = cv2.erode(mask, None, iterations = 2)  
-    mask = cv2.dilate(mask, None, iterations = 2)
+    mask = cv2.erode(mask, None, iterations = 4)  
+    mask = cv2.dilate(mask, None, iterations = 4)
     # Detecte les contours dans le masque 
     # Calcul du moment du masque
     moment = cv2.moments(mask)
@@ -47,7 +50,8 @@ while True :
     recu = ser.readline()[:-2].decode('utf-8')
     print("recu : ", recu)
 
-    cv2.imshow('preview', mask)
+    # Affichage de la frame
+    cv2.imshow('preview', frame)
     if cv2.waitKey(1) == ord("q") :
         break
 # Ferme les fenetres ouvertes
