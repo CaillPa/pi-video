@@ -12,18 +12,17 @@ window_name = 'preview'
 # Position + dimension initiale de la fenetre de tracking
 window_pos = (100, 100, 100, 100)
 # Valeurs du filtre HSV
-hsv_filter_low = (10, 40, 20)
-hsv_filter_high = (220, 255, 255)
+hsv_filter_low = (10, 20, 20)
+hsv_filter_high = (220, 255, 235)
 
 # Creation de l'objet flux video + parametres optionels
 vs = PiVideoStream()
-vs.camera.video_stabilization = True
 # Demarrage du flux video + temps de chauffe pour la camera
 vs.start()
 time.sleep(2.0)
 
 # Creation de la fenetre d'affichage
-cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
+cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
 # Position initiale de la fenetre
 (r,h,c,w) = window_pos
@@ -79,7 +78,7 @@ while True:
     recu = ser.readline()[:-2].decode('utf-8')
     print("recu : ", recu)
 
-    cv2.imshow(window_name,img2)
+    cv2.imshow(window_name, dst)
     if cv2.waitKey(1) & 0xFF == ord("q") :
         break
 
